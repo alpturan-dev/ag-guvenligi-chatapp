@@ -6,6 +6,7 @@ import { ChatContext } from "../context/ChatContext";
 import {
   arrayUnion,
   doc,
+  getDoc,
   serverTimestamp,
   Timestamp,
   updateDoc,
@@ -13,6 +14,7 @@ import {
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { encryptWithRSA } from "../utils/encryptWithRSA";
 
 const Input = () => {
   const [text, setText] = useState("");
@@ -46,10 +48,16 @@ const Input = () => {
         }
       );
     } else {
+      const docRef = doc(db, 'keys', currentUser.uid);
+      const receiverPublicKey = await getDoc(docRef);
+      const publicKey = receiverPublicKey.data().publicKey;
+      console.log("encryptedtext", publicKey)
+      const encryptedText = encryptWithRSA(publicKey, text);
+      console.log("encryptedtext", encryptedText)
       await updateDoc(doc(db, "chats", data.chatId), {
         messages: arrayUnion({
           id: uuid(),
-          text,
+          encryptedText,
           senderId: currentUser.uid,
           date: Timestamp.now(),
         }),

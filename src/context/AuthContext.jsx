@@ -11,7 +11,7 @@ export const AuthContextProvider = ({ children }) => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('keys', null);
+      // localStorage.setItem('keys', null);
       console.log(user);
     });
 

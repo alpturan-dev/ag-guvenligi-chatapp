@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
+import { decryptWithRSA } from "../utils/decryptWithRSA";
 
 const Message = ({ message }) => {
   const { currentUser } = useContext(AuthContext);
@@ -12,6 +13,8 @@ const Message = ({ message }) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   }, [message]);
 
+  const privateKey = JSON.parse(localStorage.getItem('keys')).privateKey
+  const decryptedText = decryptWithRSA(privateKey, message.encryptedText);
   return (
     <div
       ref={ref}
@@ -29,7 +32,7 @@ const Message = ({ message }) => {
         <span>just now</span>
       </div>
       <div className="messageContent">
-        <p>{message.text}</p>
+        <p>{decryptedText}</p>
         {message.img && <img src={message.img} alt="" />}
       </div>
     </div>
